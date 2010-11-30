@@ -1,0 +1,422 @@
+<bflow>
+	<style name="default">
+		<param name="outline-color" value="#000" />
+		<param name="fill-color" value="#f0f0f0" />
+		<param name="text-color" value="#000" />
+	</style>
+
+	<style name="object">
+		<param name="outline-color" value="#000" />
+		<param name="fill-color" value="#ddf" />
+		<param name="text-color" value="#000" />
+	</style>
+
+	<style name="network">
+		<param name="outline-color" value="#000" />
+		<param name="fill-color" value="#cfc" />
+		<param name="text-color" value="#000" />
+	</style>
+
+	<style name="dns">
+		<param name="outline-color" value="#0c0" />
+		<param name="text-color" value="#0c0" />
+	</style>
+
+	<callflow name="ims_isc_message">
+
+		<object id="as1" name="AS1" />
+		<object id="scscf" name="S-CSCF" />
+		<object id="as2" name="AS2" />
+
+		<message src="as1" dst="scscf" name="MESSAGE" />
+		<message src="scscf" dst="as2" name="MESSAGE" />
+
+		<message src="as2" dst="scscf" name="200 OK" />
+		<message src="scscf" dst="as1" name="200 OK" />
+
+	</callflow>
+
+	<callflow name="ims_ma_message">
+
+		<style name="ma">
+			<param name="outline-color" value="#0000ff" />
+			<param name="text-color" value="#0000ff" />
+		</style>
+
+		<object id="as" name="AS" />
+		<object id="icscf" name="I-CSCF" />
+		<object id="pcscf" name="P-CSCF" />
+		<object id="scscf" name="S-CSCF" />
+		<object id="ue" name="UE" />
+
+		<caption src="ue" dst="scscf" name="Registration" />
+		<sync/>
+
+		<message src="as" dst="icscf" name="MESSAGE" style="ma" />
+		<message src="icscf" dst="pcscf" name="MESSAGE" />
+		<message src="pcscf" dst="ue" name="MESSAGE" />
+
+		<message src="ue" dst="pcscf" name="200 OK" />
+		<message src="pcscf" dst="icscf" name="200 OK" />
+		<message src="icscf" dst="as" name="200 OK" style="ma" />
+
+		<sync/>
+		<caption src="ue" dst="scscf" name="DeRegistration" />
+
+	</callflow>
+
+	<callflow name="ims_mm_session">
+		<style name="mm">
+			<param name="outline-color" value="#0000ff" />
+			<param name="text-color" value="#0000ff" />
+		</style>
+
+		<group id="grpa" name="Network A" style="network" />
+		<group id="grpb" name="Network B" style="network" />
+
+		<object id="uea" name="UE-A" group="grpa" style="object" />
+		<object id="pcscfa" name="P-CSCF" group="grpa" style="object" />
+		<object id="icscfa" name="I-CSCF" group="grpa" style="object" />
+		<object id="scscfa" name="S-CSCF" group="grpa" style="object" />
+
+		<object id="dnsa" name="DNS" style="object" />
+
+		<object id="icscfb" name="I-CSCF" group="grpb" style="object" />
+		<object id="scscfb" name="S-CSCF" group="grpb" style="object" />
+		<object id="pcscfb" name="P-CSCF" group="grpb" style="object" />
+		<object id="ueb" name="UE-B" group="grpb" style="object" />
+
+		<caption src="uea" dst="scscfa" name="UE-A Registration" />
+		<caption src="ueb" dst="icscfb" name="UE-B Registration" />
+
+		<message src="uea" dst="pcscfa" name="INVITE" />
+		<message src="pcscfa" dst="scscfa" name="INVITE" />
+		<message src="pcscfa" dst="uea" name="TRYING" />
+		<message src="scscfa" dst="dnsa" style="dns" name="DNS QUERY" />
+		<message src="dnsa" dst="scscfa" style="dns" name="DNS RESPONSE" />
+		<message src="scscfa" dst="pcscfa" name="TRYING" />
+		<message src="scscfa" dst="icscfb" name="INVITE" style="mm" />
+		<message src="icscfb" dst="scscfb" name="INVITE" />
+		<message src="scscfb" dst="pcscfb" name="INVITE" />
+		<message src="pcscfb" dst="ueb" name="INVITE" />
+
+		<message src="ueb" dst="pcscfb" name="RINGING" />
+		<message src="pcscfb" dst="scscfb" name="RINGING" />
+		<message src="scscfb" dst="scscfa" name="RINGING" style="mm" />
+		<message src="scscfa" dst="pcscfa" name="RINGING" />
+		<message src="pcscfa" dst="uea" name="RINGING" />
+
+		<message src="ueb" dst="pcscfb" name="200 OK" />
+		<message src="pcscfb" dst="scscfb" name="200 OK" />
+		<message src="scscfb" dst="scscfa" name="200 OK" style="mm" />
+		<message src="scscfa" dst="pcscfa" name="200 OK" />
+		<message src="pcscfa" dst="uea" name="200 OK" />
+
+		<message src="uea" dst="pcscfa" name="ACK" />
+		<message src="pcscfa" dst="scscfa" name="ACK" />
+		<message src="scscfa" dst="scscfb" name="ACK" style="mm" />
+		<message src="scscfb" dst="pcscfb" name="ACK" />
+		<message src="pcscfb" dst="ueb" name="ACK" />
+
+		<communication src="uea" dst="ueb" name="Both Way RTP Media" />
+
+		<message src="uea" dst="pcscfa" name="BYE" />
+		<message src="pcscfa" dst="scscfa" name="BYE" />
+		<message src="scscfa" dst="scscfb" name="BYE" style="mm" />
+		<message src="scscfb" dst="pcscfb" name="BYE" />
+		<message src="pcscfb" dst="ueb" name="BYE" />
+
+		<message src="ueb" dst="pcscfb" name="200 OK" />
+		<message src="pcscfb" dst="scscfb" name="200 OK" />
+		<message src="scscfb" dst="scscfa" name="200 OK" style="mm" />
+		<message src="scscfa" dst="pcscfa" name="200 OK" />
+		<message src="pcscfa" dst="uea" name="200 OK" />
+
+		<sync />
+
+		<caption src="uea" dst="scscfa" name="UE-A DeRegistration" />
+		<caption src="ueb" dst="icscfb" name="UE-B DeRegistration" />
+
+
+	</callflow>
+
+	<callflow name="ims_mi_mj_mg_breakout">
+
+		<style name="mg">
+			<param name="outline-color" value="#0000ff" />
+			<param name="text-color" value="#0000ff" />
+		</style>
+
+		<style name="mi">
+			<param name="outline-color" value="#00ff00" />
+			<param name="text-color" value="#00ff00" />
+		</style>
+
+		<style name="mj">
+			<param name="outline-color" value="#cc00ff" />
+			<param name="text-color" value="#cc00ff" />
+		</style>
+
+		<object id="ue" name="UE" style="object" />
+		<object id="pcscf" name="P-CSCF" style="object" />
+		<object id="scscf" name="S-CSCF" style="object" />
+		<object id="bgcf" name="BGCF" style="object" />
+		<object id="mgcf" name="MGCF" style="object" />
+
+		<caption src="ue" dst="scscf" name="UE Registration" />
+
+		<message src="ue" dst="pcscf" name="INVITE" />
+		<message src="pcscf" dst="scscf" name="INVITE" />
+		<message src="scscf" dst="bgcf" name="INVITE" style="mi"/>
+		<message src="bgcf" dst="mgcf" name="INVITE" style="mj"/>
+
+		<message src="scscf" dst="pcscf" name="100 Trying" />
+		<message src="pcscf" dst="ue" name="100 Trying" />
+
+		<message src="mgcf" dst="scscf" name="200 OK" style="mg" />
+		<message src="scscf" dst="pcscf" name="200 OK" />
+		<message src="pcscf" dst="ue" name="200 OK" />
+
+		<sync />
+
+		<message src="ue" dst="pcscf" name="ACK" />
+		<message src="pcscf" dst="scscf" name="ACK" />
+		<message src="scscf" dst="mgcf" name="ACK" style="mg" />
+
+		<communication src="ue" dst="mgcf" name="Both Way RTP Media" />
+
+		<message src="ue" dst="pcscf" name="BYE" />
+		<message src="pcscf" dst="scscf" name="BYE" />
+		<message src="scscf" dst="mgcf" name="BYE" style="mg" />
+
+		<message src="mgcf" dst="scscf" name="200 OK" style="mg"/>
+		<message src="scscf" dst="pcscf" name="200 OK" />
+		<message src="pcscf" dst="ue" name="200 OK" />
+
+		<caption src="ue" dst="scscf" name="UE DeRegistration" />
+
+	</callflow>
+
+	<callflow name="ims_mi_mj_mg_breakin">
+
+		<style name="mg">
+			<param name="outline-color" value="#0000ff" />
+			<param name="text-color" value="#0000ff" />
+		</style>
+
+		<style name="mi">
+			<param name="outline-color" value="#00ff00" />
+			<param name="text-color" value="#00ff00" />
+		</style>
+
+		<style name="mj">
+			<param name="outline-color" value="#cc00ff" />
+			<param name="text-color" value="#cc00ff" />
+		</style>
+
+		<object id="mgcf" name="MGCF" style="object" />
+		<object id="icscf" name="I-CSCF" style="object" />
+		<object id="scscf" name="S-CSCF" style="object" />
+		<object id="pcscf" name="P-CSCF" style="object" />
+		<object id="ue" name="UE" style="object" />
+
+		<caption src="ue" dst="scscf" name="UE Registration" />
+
+		<message src="mgcf" dst="icscf" name="INVITE" style="mg" />
+		<message src="icscf" dst="scscf" name="INVITE" />
+		<message src="scscf" dst="pcscf" name="INVITE" />
+		<message src="pcscf" dst="ue" name="INVITE" />
+
+		<message src="ue" dst="pcscf" name="180 Ringing" />
+		<message src="pcscf" dst="scscf" name="180 Ringing" />
+		<message src="scscf" dst="icscf" name="180 Ringing" />
+		<message src="icscf" dst="mgcf" name="180 Ringing" style="mg" />
+
+		<message src="ue" dst="pcscf" name="100 Trying" />
+		<message src="pcscf" dst="scscf" name="100 Trying" />
+		<message src="scscf" dst="icscf" name="100 Trying" />
+		<message src="icscf" dst="mgcf" name="100 Trying" style="mg" />
+
+		<message src="ue" dst="pcscf" name="200 OK" />
+		<message src="pcscf" dst="scscf" name="200 OK" />
+		<message src="scscf" dst="icscf" name="200 OK" />
+		<message src="icscf" dst="mgcf" name="200 OK" style="mg" />
+
+		<message src="mgcf" dst="scscf" name="ACK" style="mg" />
+		<message src="scscf" dst="pcscf" name="ACK" />
+		<message src="pcscf" dst="ue" name="ACK" />
+
+		<sync />
+
+		<communication src="mgcf" dst="ue" name="Both Way RTP Media" />
+
+		<message src="ue" dst="pcscf" name="BYE" />
+		<message src="pcscf" dst="scscf" name="BYE" />
+		<message src="scscf" dst="mgcf" name="BYE" style="mg" />
+
+		<message src="mgcf" dst="scscf" name="200 OK" style="mg"/>
+		<message src="scscf" dst="pcscf" name="200 OK" />
+		<message src="pcscf" dst="ue" name="200 OK" />
+
+		<caption src="ue" dst="scscf" name="UE DeRegistration" />
+
+	</callflow>
+
+	<callflow name="ims_mx_breakout">
+		<group id="hnet" name="Home Network" />
+
+		<object id="ue" name="UE" style="object" group="hnet"/>
+		<object id="pcscf" name="P-CSCF" style="object" group="hnet" />
+		<object id="scscf" name="S-CSCF" style="object" group="hnet" />
+		<object id="ibcf" name="IBCF" style="object" group="hnet" />
+
+		<object id="ims" name="IMS" style="object" />
+
+		<caption src="ue" dst="scscf" name="UE Registration" />
+
+		<message src="ue" dst="pcscf" name="INVITE" />
+		<message src="pcscf" dst="scscf" name="INVITE" />
+		<message src="scscf" dst="ibcf" name="INVITE" />
+		<message src="ibcf" dst="ims" name="INVITE" />
+
+		<message src="ims" dst="ibcf" name="180 Ringing" />
+		<message src="ibcf" dst="scscf" name="180 Ringing" />
+		<message src="scscf" dst="pcscf" name="180 Ringing" />
+		<message src="pcscf" dst="ue" name="180 Ringing" />
+
+		<message src="ims" dst="ibcf" name="200 OK" />
+		<message src="ibcf" dst="scscf" name="200 OK" />
+		<message src="scscf" dst="pcscf" name="200 OK" />
+		<message src="pcscf" dst="ue" name="200 OK" />
+
+		<message src="ue" dst="pcscf" name="ACK" />
+		<message src="pcscf" dst="scscf" name="ACK" />
+		<message src="scscf" dst="ibcf" name="ACK" />
+		<message src="ibcf" dst="ims" name="ACK" />
+
+		<communication src="ue" dst="ims" name="Both Way RTP Media" />
+
+		<message src="ue" dst="pcscf" name="ACK" />
+		<message src="pcscf" dst="scscf" name="ACK" />
+		<message src="scscf" dst="ibcf" name="ACK" />
+		<message src="ibcf" dst="ims" name="ACK" />
+
+		<message src="ims" dst="ibcf" name="200 OK" />
+		<message src="ibcf" dst="scscf" name="200 OK" />
+		<message src="scscf" dst="pcscf" name="200 OK" />
+		<message src="pcscf" dst="ue" name="200 OK" />
+
+		<caption src="ue" dst="scscf" name="UE DeRegistration" />
+
+	</callflow>
+
+	<callflow name="ims_mw_session">
+
+		<style name="mw">
+			<param name="outline-color" value="#0000ff" />
+			<param name="text-color" value="#0000ff" />
+		</style>
+
+		<object id="ueo" name="UE" style="object" group="hnet"/>
+		<object id="pcscfo" name="P-CSCF" style="object" />
+		<object id="icscfo" name="I-CSCF" style="object" />
+		<object id="scscfo" name="S-CSCF" style="object" />
+		<object id="icscft" name="I-CSCF" style="object" />
+		<object id="scscft" name="S-CSCF" style="object" />
+		<object id="pcscft" name="P-CSCF" style="object" />
+		<object id="uet" name="UE" style="object" />
+
+		<caption src="ueo" dst="scscfo" name="UE-O Registration" />
+		<caption src="icscft" dst="uet" name="UE-T Registration" />
+
+		<message src="ueo" dst="pcscfo" name="INVITE" />
+		<message src="pcscfo" dst="scscfo" name="INVITE" style="mw" />
+		<message src="pcscfo" dst="ueo" name="100 Trying" />
+		<message src="scscfo" dst="pcscfo" name="100 Trying" style="mw" />
+		<message src="scscfo" dst="icscft" name="INVITE" />
+		<message src="icscft" dst="scscft" name="INVITE" style="mw" />
+		<message src="icscft" dst="scscfo" name="100 Trying" />
+		<message src="scscft" dst="pcscft" name="INVITE" style="mw" />
+		<message src="scscft" dst="icscft" name="100 Trying" style="mw" />
+		<message src="pcscft" dst="uet" name="INVITE" />
+		<message src="pcscft" dst="scscft" name="100 Trying" style="mw" />
+		<message src="uet" dst="pcscft" name="100 Trying" />
+
+		<message src="uet" dst="pcscft" name="180 Ringing" />
+		<message src="pcscft" dst="scscft" name="180 Ringing" style="mw" />
+		<message src="scscft" dst="scscfo" name="180 Ringing" />
+		<message src="scscfo" dst="pcscfo" name="180 Ringing" style="mw" />
+		<message src="pcscfo" dst="ueo" name="180 Ringing" />
+
+		<message src="uet" dst="pcscft" name="200 OK" />
+		<message src="pcscft" dst="scscft" name="200 OK" style="mw" />
+		<message src="scscft" dst="scscfo" name="200 OK" />
+		<message src="scscfo" dst="pcscfo" name="200 OK" style="mw" />
+		<message src="pcscfo" dst="ueo" name="200 OK" />
+
+		<message src="ueo" dst="pcscfo" name="ACK" />
+		<message src="pcscfo" dst="scscfo" name="ACK" style="mw" />
+		<message src="scscfo" dst="scscft" name="ACK" />
+		<message src="scscft" dst="pcscft" name="ACK" style="mw" />
+		<message src="pcscft" dst="uet" name="ACK" />
+
+		<communication src="ueo" dst="uet" name="Both Way RTP Media" />
+
+		<message src="ueo" dst="pcscfo" name="BYE" />
+		<message src="pcscfo" dst="scscfo" name="BYE" style="mw" />
+		<message src="scscfo" dst="scscft" name="BYE" />
+		<message src="scscft" dst="pcscft" name="BYE" style="mw" />
+		<message src="pcscft" dst="uet" name="BYE" />
+
+		<message src="uet" dst="pcscft" name="200 OK" />
+		<message src="pcscft" dst="scscft" name="200 OK" style="mw" />
+		<message src="scscft" dst="scscfo" name="200 OK" />
+		<message src="scscfo" dst="pcscfo" name="200 OK" style="mw" />
+		<message src="pcscfo" dst="ueo" name="200 OK" />
+
+		<sync />
+
+		<caption src="ueo" dst="scscfo" name="UE-O DeRegistration" />
+		<caption src="icscft" dst="uet" name="UE-T DeRegistration" />
+
+	</callflow>
+
+	<callflow name="ims_mw_nvs">
+
+		<style name="mw">
+			<param name="outline-color" value="#0000ff" />
+			<param name="text-color" value="#0000ff" />
+		</style>
+
+		<group id="hnet" name="Home Network" />
+
+		<object id="ue" name="UE" style="object" group="hnet"/>
+		<object id="pcscf" name="P-CSCF" style="object" group="hnet" />
+		<object id="icscf" name="I-CSCF" style="object" group="hnet" />
+		<object id="scscf" name="S-CSCF" style="object" group="hnet" />
+		<object id="nvs" name="NVS" style="object" />
+
+		<message src="ue" dst="pcscf" name="REGISTER" />
+		<message src="pcscf" dst="nvs" name="REGISTER" style="mw" />
+		<message src="nvs" dst="pcscf" name="401 Unauthorized" style="mw" />
+		<message src="pcscf" dst="ue" name="401 Unauthorized" />
+
+		<message src="ue" dst="pcscf" name="REGISTER" />
+		<message src="pcscf" dst="nvs" name="REGISTER" style="mw" />
+		<message src="nvs" dst="pcscf" name="200 OK" style="mw" />
+		<message src="pcscf" dst="ue" name="200 OK" />
+	
+		<communication src="ue" dst="nvs" name="INVITE, MESSAGE, ..." />
+
+		<message src="ue" dst="pcscf" name="REGISTER">Expires = 0</message>
+		<message src="pcscf" dst="nvs" name="REGISTER" style="mw">Expires = 0</message>
+		<message src="nvs" dst="pcscf" name="200 OK" style="mw" />
+		<message src="pcscf" dst="ue" name="200 OK" />
+
+
+	</callflow>
+
+	
+
+</bflow>
+

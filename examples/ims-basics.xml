@@ -1,0 +1,72 @@
+<bflow>
+	<style name="default">
+		<param name="outline-color" value="#000" />
+		<param name="fill-color" value="#f0f0f0" />
+		<param name="text-color" value="#000" />
+	</style>
+
+	<style name="object">
+		<param name="outline-color" value="#000" />
+		<param name="fill-color" value="#ddf" />
+		<param name="text-color" value="#000" />
+	</style>
+
+	<style name="network">
+		<param name="outline-color" value="#000" />
+		<param name="fill-color" value="#cfc" />
+		<param name="text-color" value="#000" />
+	</style>
+
+	<style name="dns">
+		<param name="outline-color" value="#0c0" />
+		<param name="text-color" value="#0c0" />
+	</style>
+
+	<style name="cx">
+		<param name="outline-color" value="#00c" />
+		<param name="text-color" value="#00c" />
+	</style>
+
+	<style name="hlr">
+		<param name="outline-color" value="#0c0" />
+		<param name="text-color" value="#0c0" />
+	</style>
+
+
+	<callflow name="ims_registration_digest">
+
+		<object id="ue" name="UE" />
+		<object id="pcscf" name="P-CSCF" />
+		<object id="icscf" name="I-CSCF" />
+		<object id="scscf" name="S-CSCF" />
+		<object id="hss" name="HSS" />
+		<object id="hlr" name="HLR" />
+
+		<message src="ue" dst="pcscf" name="REGISTER" />
+		<message src="pcscf" dst="icscf" name="REGISTER">(IMPI, IMPU)</message>
+		<message src="icscf" dst="hss" name="Cx: Reg Status Query" style="cx" />
+		<message src="hss" dst="icscf" name="Cx: Response" style="cx" />
+		<message src="icscf" dst="scscf" name="REGISTER">(IMPI, IMPU)</message>
+		<message src="scscf" dst="hss" name="Cx-MAR: AV-Request" style="cx" />
+		<message src="hss" dst="hlr" name="MAP GAI-Request (IMSI)" style="hlr" />
+		<message src="hlr" dst="hss" name="Response (AV)" style="hlr" />
+		<message src="hss" dst="scscf" name="Cx-MAA: AV-Response" style="cx">(IMPI, RAND, AUTN, XRES, CK, IK)</message>
+
+		<message src="scscf" dst="icscf" name="401 Unauthorized">(IMPI, RAND, AUTN, CK, IK)</message>
+		<message src="icscf" dst="pcscf" name="401 Unauthorized">(IMPI, RAND, AUTN, CK, IK)</message>
+		<message src="pcscf" dst="ue" name="401 Unauthorized">(IMPI, RAND, AUTN)</message>
+
+		<message src="ue" dst="pcscf" name="REGISTER">(IMPI, IMPU, RES)</message>
+		<message src="pcscf" dst="icscf" name="REGISTER">(IMPI, IMPU, RES)</message>
+		<message src="icscf" dst="hss" name="Cx: Reg Status Query" style="cx" />
+		<message src="scscf" dst="hss" name="Cx-MAR: AV-Request" style="cx" />
+		<message src="icscf" dst="scscf" name="REGISTER">(IMPI, IMPU, RES)</message>
+
+		<message src="scscf" dst="icscf" name="200 OK" />
+		<message src="icscf" dst="pcscf" name="200 OK" />
+		<message src="pcscf" dst="ue" name="200 OK" />
+
+	</callflow>
+
+</bflow>
+

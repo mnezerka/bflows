@@ -1,0 +1,28 @@
+<bflow>
+	<callflow name="test1">
+
+		<object id="ue" name="UE" />
+		<object id="pcscf" name="P-CSCF" />
+		<object id="icscf" name="I-CSCF" />
+		<object id="scscf" name="S-CSCF" />
+
+		<message src="ue" dst="pcscf" name="REGISTER">This is desc</message>
+		<message src="pcscf" dst="icscf" name="REGISTER" />
+		<message src="icscf" dst="scscf" name="REGISTER" />
+
+		<message src="scscf" dst="icscf" name="401 Unauthorized" />
+		<message src="icscf" dst="pcscf" name="401 Unauthorized" />
+		<message src="pcscf" dst="ue" name="401 Unauthorized" />
+
+		<message src="ue" dst="pcscf" name="REGISTER" />
+		<message src="pcscf" dst="icscf" name="REGISTER" />
+		<message src="icscf" dst="scscf" name="REGISTER" />
+
+		<message src="scscf" dst="icscf" name="200 OK" />
+		<message src="icscf" dst="pcscf" name="200 OK" />
+		<message src="pcscf" dst="ue" name="200 OK" />
+
+	</callflow>
+
+</bflow>
+

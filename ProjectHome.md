@@ -1,0 +1,1 @@
+Lightweight python application for generating simple call flow diagrams from XML files. Primary designed for SIP protocol.
